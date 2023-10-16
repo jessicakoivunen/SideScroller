@@ -1,13 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEditor.Build.Content;
 
 public class PlayerController : MonoBehaviour
 {
+    //Physics (basically)
     private Rigidbody rb = null;
     public float jumpForce = 10f;
     public float gravityModifier;
+
+    SpawnManager spawnManager;
     
+    //Game over :(
+    public GameObject GameOverScreen;
+    
+    //Score keeping
+    [SerializeField] TMP_Text scoreText;
+    int score = 0;
+
     //Boolean tracking if player is on groung
     public bool isOnGround = true;
 
@@ -22,9 +34,34 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Physics.gravity = new Vector3(0, -9.81f,0);
         rb = GetComponent<Rigidbody>();
         Physics.gravity *= gravityModifier;
+
+        spawnManager = GetComponent<SpawnManager>();
+
         playerAnim = GetComponent<Animator>();
+        Time.timeScale = 1;
+    }
+
+    //Obstacles and scores
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Obstacle"))
+        {
+            playerAnim.SetBool("Death_b", true);
+            playerAnim.SetInteger("DeathType_int", 1);
+
+            spawnManager.PlayerDead();
+            Invoke("GameOver", 3);
+
+        }
+        else if (other.CompareTag("ScoreTrigger"))
+        {
+            Debug.Log("Score");
+            score++;
+            scoreText.text = "SCORE  " + score.ToString();
+        }
     }
 
     // Update is called once per frame
@@ -38,4 +75,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void GameOver()
+    {
+        GameOverScreen.SetActive(true);
+        Time.timeScale = 0;
+    }
 }
