@@ -11,11 +11,12 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 10f;
     public float gravityModifier;
 
-    SpawnManager spawnManager;
+
     
     //Game over :(
     public GameObject GameOverScreen;
-    
+    SpawnManager spawnManager;
+
     //Score keeping
     [SerializeField] TMP_Text scoreText;
     int score = 0;
