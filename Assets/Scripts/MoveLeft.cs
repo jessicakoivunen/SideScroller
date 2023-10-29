@@ -5,10 +5,17 @@ using UnityEngine;
 public class MoveLeft : MonoBehaviour
 {
     public float speed = 5f;
+    private PlayerController playerController;
 
-    // Update is called once per frame
+    void Start()
+    {
+        playerController = GameObject.Find("Player").GetComponent<PlayerController>();
+    }
+
     void Update()
     {
-        transform.position += Vector3.left * speed * Time.deltaTime;
+        if (playerController.gameOver == false){
+            transform.position += Vector3.left * speed * Time.deltaTime;
+        }
     }
 }

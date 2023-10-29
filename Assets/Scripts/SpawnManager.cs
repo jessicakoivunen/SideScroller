@@ -9,22 +9,23 @@ public class SpawnManager : MonoBehaviour
     public GameObject ScoreCounter;
     private Vector3 spawnPos = new Vector3(25, 0, 0);
 
-    private float startDelay = 2;
-    private float repeatRate = 2;
+    public float startDelay = 2;
+    public float repeatRate = 2;
 
-    private bool gameActive = true;
+    public PlayerController playerController;
 
     // Start is called before the first frame update
     void Start()
     {
+        //Find PlayerController script
+        playerController = GameObject.Find("Player").GetComponent<PlayerController>();
         //Spawn obstacles repeatedly
         InvokeRepeating("SpawnObstacle", startDelay, repeatRate);
-        
     }
 
     public void SpawnObstacle()
     {
-        while (gameActive)
+        if (playerController.gameOver == false)
         {
             //Random obstacle from list
             int rnd = Random.Range(0,Obstacles.Length);
@@ -32,10 +33,6 @@ public class SpawnManager : MonoBehaviour
             Instantiate(Obstacles[rnd], spawnPos, Obstacles[rnd].transform.rotation);
             Instantiate(ScoreCounter, spawnPos + new Vector3(1,1,0), ScoreCounter.transform.rotation);
         }
-    }
 
-    public void PlayerDead()
-    {
-        gameActive = false;
     }
 }

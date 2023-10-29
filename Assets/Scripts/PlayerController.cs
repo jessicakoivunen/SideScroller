@@ -6,16 +6,20 @@ using UnityEditor.Build.Content;
 
 public class PlayerController : MonoBehaviour
 {
-    //Physics (basically)
+    //Movement
     private Rigidbody rb = null;
     public float jumpForce = 10f;
     public float gravityModifier;
+    private Animator playerAnim;
 
-
+    //Sounds
+    public AudioClip jump, crash;
+    private AudioSource playerAudio;
     
-    //Game over :(
+    //Game over
+    public bool gameOver = false;
     public GameObject GameOverScreen;
-    SpawnManager spawnManager;
+    public ParticleSystem explosion, dirt;
 
     //Score keeping
     [SerializeField] TMP_Text scoreText;
@@ -24,13 +28,6 @@ public class PlayerController : MonoBehaviour
     //Boolean tracking if player is on groung
     public bool isOnGround = true;
 
-    //Animation
-    private Animator playerAnim;
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        isOnGround = true;
-    }
 
     // Start is called before the first frame update
     void Start()
@@ -39,10 +36,16 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         Physics.gravity *= gravityModifier;
 
-        spawnManager = GetComponent<SpawnManager>();
-
         playerAnim = GetComponent<Animator>();
         Time.timeScale = 1;
+
+        playerAudio = GetComponent<AudioSource>();
+    }
+    
+    private void OnCollisionEnter(Collision collision)
+    {
+        isOnGround = true;
+        dirt.Play();
     }
 
     //Obstacles and scores
@@ -50,12 +53,23 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag("Obstacle"))
         {
+            gameOver = true;
+            //Death animation and explosion
+            dirt.Stop();
+            Debug.Log("Game over");
             playerAnim.SetBool("Death_b", true);
             playerAnim.SetInteger("DeathType_int", 1);
 
-            spawnManager.PlayerDead();
+            explosion.Play();
+            playerAudio.PlayOneShot(crash, 1.0f);
+            //Stop backround
+            GameObject background;
+            background = GameObject.FindGameObjectWithTag("Background");
+            RepeatBackround repeatBackround;
+            repeatBackround = background.GetComponent<RepeatBackround>();
+            repeatBackround.speed = 0.0f;
+            //Game over.
             Invoke("GameOver", 3);
-
         }
         else if (other.CompareTag("ScoreTrigger"))
         {
@@ -73,6 +87,8 @@ public class PlayerController : MonoBehaviour
             rb.AddForce(Vector3.up*jumpForce, ForceMode.Impulse);
             isOnGround = false;
             playerAnim.SetTrigger("Jump_trig");
+            dirt.Stop();
+            playerAudio.PlayOneShot(jump, 1.0f);
         }
     }
 

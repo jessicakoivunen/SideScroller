@@ -7,6 +7,9 @@ TagManager:
   - ScoreTrigger
   - Obstacle
   - GameManager
+  - Background
+  - Spawner
+  - Ground
   layers:
   - Default
   - TransparentFX
